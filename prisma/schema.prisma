@@ -14,8 +14,42 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  nGrams   NGram[]
+  texts    Text[]
+  corpora  Corpus[]
   password Password?
-  notes    Note[]
+}
+
+model NGram {
+  id String @id @default(cuid())
+
+  n      Int
+  ngram  String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  text   Text   @relation(fields: [textId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  textId String
+}
+
+model Text {
+  id String @id @default(cuid())
+
+  text     String
+  title    String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId   String
+  nGrams   NGram[]
+  Corpus   Corpus? @relation(fields: [corpusId], references: [id])
+  corpusId String?
+}
+
+model Corpus {
+  id     String @id @default(cuid())
+  title  String
+  texts  Text[]
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
 }
 
 model Password {
@@ -23,16 +57,4 @@ model Password {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
-}
-
-model Note {
-  id    String @id @default(cuid())
-  title String
-  body  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
 }
