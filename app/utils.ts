@@ -79,7 +79,7 @@ export function parseNgrams(
   text: string,
   n: number,
   delimiter?: string,
-): string[] | string[][] {
+): string[] {
   const parse = nGram(n);
   let result: string[] | string[][];
   if (delimiter) {

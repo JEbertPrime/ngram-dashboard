@@ -10,6 +10,7 @@ export async function getUserById(id: User["id"]) {
     where: { id },
     select: {
       corpora: true,
+      id: true,
     },
   });
 }

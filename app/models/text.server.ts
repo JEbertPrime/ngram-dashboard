@@ -1,28 +1,8 @@
 import type { User, NGram, Text, Corpus } from "@prisma/client";
 
 import { prisma } from "~/db.server";
-import { nGram as getNGramFromText } from "n-gram";
+import { parseNgrams } from "~/utils";
 export type { NGram, Text, Corpus } from "@prisma/client";
-
-export function getNGram({
-  id,
-  userId,
-}: Pick<NGram, "id"> & {
-  userId: User["id"];
-}) {
-  return prisma.nGram.findFirst({
-    select: { id: true, body: true, title: true },
-    where: { id, userId },
-  });
-}
-
-export function getNGramListItems({ userId }: { userId: User["id"] }) {
-  return prisma.nGram.findMany({
-    where: { userId },
-    select: { id: true, title: true },
-    orderBy: { updatedAt: "desc" },
-  });
-}
 
 export function createNGram({
   ngram,
@@ -55,14 +35,48 @@ export function createText({
   corpusId: Corpus["id"];
   userId: User["id"];
 }) {
-  const nGramsArray = [];
+  const nGramObjects = [];
   for (const n of nValues) {
-    nGramsArray = nGramsArray;
+    nGramObjects.push(
+      ...parseNgrams(text, n, delimiter).map((ngram) => {
+        return {
+          n,
+          ngram,
+          userId,
+        };
+      }),
+    );
   }
+
   return prisma.text.create({
     data: {
       title,
       text,
+      nGrams: {
+        createMany: { data: nGramObjects },
+      },
+      corpusId: {
+        connect,
+      },
+      userId,
+    },
+  });
+}
+export function getText({ textId }) {
+  return prisma.text.findFirst({
+    where: {
+      id: textId,
+    },
+  });
+}
+export function getTexts({ userId }) {
+  return prisma.text.findMany();
+}
+export function getNGramsByText({ textId, userId }) {
+  return prisma.nGram.findMany({
+    where: {
+      textId,
+      userId,
     },
   });
 }
