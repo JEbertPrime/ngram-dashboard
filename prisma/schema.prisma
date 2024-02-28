@@ -40,7 +40,7 @@ model Text {
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId   String
   nGrams   NGram[]
-  Corpus   Corpus? @relation(fields: [corpusId], references: [id])
+  corpus   Corpus? @relation(fields: [corpusId], references: [id])
   corpusId String?
 }
 

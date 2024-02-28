@@ -55,10 +55,22 @@ export function createText({
       nGrams: {
         createMany: { data: nGramObjects },
       },
-      corpusId: {
-        connect,
+      corpus: {
+        connectOrCreate: {
+          where: {
+            id: corpusId,
+          },
+          create: {
+            title: corpusId,
+            userId: userId,
+          },
+        },
       },
-      userId,
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
     },
   });
 }
@@ -70,7 +82,11 @@ export function getText({ textId }) {
   });
 }
 export function getTexts({ userId }) {
-  return prisma.text.findMany();
+  return prisma.text.findMany({
+    include: {
+      corpus: true,
+    },
+  });
 }
 export function getNGramsByText({ textId, userId }) {
   return prisma.nGram.findMany({
